@@ -1,0 +1,75 @@
+---
+title: "Palmer Penguin Data cleaning"
+author: "Michael Olagoke"
+date: "2023-08-21"
+output:
+  html_notebook: default
+  pdf_document: default
+  html_document: default
+---
+
+## Introduction 
+  The `palmerpenguin` is a package in R and like all other packages in R, it comes with test dataset which are `penguins` and `penguins_raw`. In this project, I leveraged on my knowledge of R to clean up the `penguins` before further analysis. Load the `palmerpenguins` package to access the `penguins` data.
+```{r}
+# install the package if you do not have it on your local machine
+
+# load the package
+library(palmerpenguins)
+
+# Quick peep at the data
+View(penguins)
+```
+  
+  ### About the `Penguins` data
+  The data is a collection of 344 records of penguins observed over a period of 3 years(2007 - 2009). Each include species of penguins, Islands they reside, flipper length in mm, bill length in mm, bill depth in mm, sex and year the observation was recorded.
+```{r}
+# load the data into a variable so that the source of data is preserved
+data <- penguins
+# summary of the penguins data
+summary(data)
+
+# View the first 6 values
+head(data)
+ 
+```
+  ## Data Cleaning
+  From the result above, it is clear that `null` (na) values in some columns, alternatively i built my `custom count function` to count na values by columns.
+```{r}
+# custom custom function - count_na
+count_na <- function (a){
+  counts <- sapply(a,function (x) sum(is.na(x)))
+  data.frame(counts)
+}
+
+# run the function with 'data' as parameter
+count_na(data)
+```
+  
+  #### Replacing na within quantitative column with mean of the total column.
+  Each column has consistent value such as a fixed decimal place for quantitative column.I made a function that calculated the mean and formats the result to maintain consistency. Then I assigned nulls in each column with the mean of the respective column.
+```{r}
+# mean function. It takes the column and desired decimal place as parameters
+cal_mean <- function (a,b){
+  as.double(round(mean(a, na.rm=TRUE),b))
+}
+
+# replacing nulls with mean
+
+# bill_depth_mm
+data$bill_depth_mm[is.na(data$bill_depth_mm)] <- cal_mean(data$bill_depth_mm,1)
+# bill_length_mm
+data$bill_length_mm[is.na(data$bill_length_mm)] <- cal_mean(data$bill_length_mm,1)
+# flipper_length_mm
+data$flipper_length_mm[is.na(data$flipper_length_mm)] <- cal_mean(data$flipper_length_mm,0)
+data$body_mass_g[is.na(data$body_mass_g)] <- cal_mean(data$body_mass_g,0)
+
+```
+  Run the count_na function to check if na values still exist
+```{r}
+count_na(data)
+
+# summarize the data to check for NA's
+summary(data)
+```
+  Data has been cleaned!.
+  
